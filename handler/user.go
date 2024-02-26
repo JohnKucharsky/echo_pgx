@@ -90,7 +90,7 @@ func (apiConfig *DatabaseController) UpdateUser(c echo.Context) error {
 	}
 
 	return c.JSON(
-		http.StatusOK, user,
+		http.StatusCreated, user,
 	)
 }
 

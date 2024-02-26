@@ -1,8 +1,7 @@
 package handler
 
 import (
-	"fmt"
-	"github.com/JohnKucharsky/echo_pgx/models"
+	"github.com/JohnKucharsky/echo_pgx/repository"
 	"github.com/JohnKucharsky/echo_pgx/serializer"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -18,17 +17,26 @@ func (apiConfig *DatabaseController) CreateProduct(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	product, err := repository.CreateProduct(apiConfig.Pool, productBody)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
 	return c.JSON(
 		http.StatusCreated,
-		productBody,
+		product,
 	)
 }
 
 func (apiConfig *DatabaseController) GetProducts(c echo.Context) error {
+	products, err := repository.GetProduct(apiConfig.Pool)
 
-	return c.NoContent(
-		http.StatusOK,
-	)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, products)
 }
 
 func (apiConfig *DatabaseController) GetOneProduct(c echo.Context) error {
@@ -43,12 +51,13 @@ func (apiConfig *DatabaseController) GetOneProduct(c echo.Context) error {
 	}
 	dbId = int32(res)
 
-	var product models.Product
+	product, err := repository.GetOneProduct(apiConfig.Pool, int(dbId))
 
-	fmt.Println(dbId)
-	return c.JSON(
-		http.StatusOK, product,
-	)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, product)
 }
 
 func (apiConfig *DatabaseController) UpdateProduct(c echo.Context) error {
@@ -56,12 +65,10 @@ func (apiConfig *DatabaseController) UpdateProduct(c echo.Context) error {
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "No id in the address")
 	}
-	var dbId int32
-	res, err := strconv.ParseInt(id, 10, 32)
+	dbId, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	dbId = int32(res)
 
 	var productBody serializer.ProductBody
 	if err := c.Bind(&productBody); err != nil {
@@ -71,12 +78,17 @@ func (apiConfig *DatabaseController) UpdateProduct(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	var product = serializer.ProductBodyToProduct(productBody)
-
-	fmt.Println(dbId)
-	return c.JSON(
-		http.StatusCreated, product,
+	product, err := repository.UpdateProduct(
+		apiConfig.Pool,
+		productBody,
+		int(dbId),
 	)
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusCreated, product)
 }
 
 func (apiConfig *DatabaseController) DeleteProduct(c echo.Context) error {
@@ -84,16 +96,16 @@ func (apiConfig *DatabaseController) DeleteProduct(c echo.Context) error {
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "No id in the address")
 	}
-	var dbId int32
-	res, err := strconv.ParseInt(id, 10, 32)
+	dbId, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	dbId = int32(res)
 
-	var product models.Product
+	product, err := repository.DeleteProduct(apiConfig.Pool, int(dbId))
 
-	fmt.Println(dbId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
 	return c.JSON(http.StatusOK, product)
 }
