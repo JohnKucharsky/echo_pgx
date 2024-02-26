@@ -68,12 +68,10 @@ func (apiConfig *DatabaseController) UpdateUser(c echo.Context) error {
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "No id in the address")
 	}
-	var dbId int32
-	res, err := strconv.ParseInt(id, 10, 32)
+	dbId, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	dbId = int32(res)
 
 	var userBody serializer.UserBody
 	if err := c.Bind(&userBody); err != nil {
@@ -99,14 +97,12 @@ func (apiConfig *DatabaseController) DeleteUser(c echo.Context) error {
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "No id in the address")
 	}
-	var dbId int
-	res, err := strconv.ParseInt(id, 10, 32)
+	dbId, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	dbId = int(res)
 
-	user, err := repository.DeleteUser(apiConfig.Pool, dbId)
+	user, err := repository.DeleteUser(apiConfig.Pool, int(dbId))
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
