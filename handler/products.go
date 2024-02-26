@@ -44,12 +44,10 @@ func (apiConfig *DatabaseController) GetOneProduct(c echo.Context) error {
 	if id == "" {
 		return echo.NewHTTPError(http.StatusBadRequest, "No id in the address")
 	}
-	var dbId int32
-	res, err := strconv.ParseInt(id, 10, 32)
+	dbId, err := strconv.ParseInt(id, 10, 32)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	dbId = int32(res)
 
 	product, err := repository.GetOneProduct(apiConfig.Pool, int(dbId))
 

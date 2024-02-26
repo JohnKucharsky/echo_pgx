@@ -19,7 +19,7 @@ func CreateProduct(pool *pgxpool.Pool, body serializer.ProductBody) (
 		ctx, `
         INSERT INTO products (name, serial_number, created_at, updated_at)
         VALUES (@name, @serial_number, @created_at, @updated_at)
-        RETURNING id, name,serial_number, created_at, updated_at`,
+        RETURNING id, name, serial_number, created_at, updated_at`,
 		pgx.NamedArgs{
 			"name":          body.Name,
 			"serial_number": body.SerialNumber,

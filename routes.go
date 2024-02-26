@@ -31,6 +31,7 @@ func routes(route *echo.Group, dbConnectionString string) {
 	// orders
 	route.POST("/orders", h.CreateOrder)
 	route.GET("/orders", h.GetOrders)
+	route.GET("/orders/:id", h.GetOneOrder)
 	route.PUT("/orders/:id", h.UpdateOrder)
 	route.DELETE("/orders/:id", h.DeleteOrder)
 	// end orders
